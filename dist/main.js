@@ -40,13 +40,29 @@ const express_1 = __importStar(require("express"));
 const auth_controller_1 = __importDefault(require("./module/auth/auth.controller"));
 const globalHandlingError_1 = require("./common/utils/globalHandlingError");
 const exception_error_1 = require("./common/exception/exception.error");
+const cors_1 = __importDefault(require("cors"));
+const express_rate_limit_1 = require("express-rate-limit");
+const env_service_1 = require("./config/env.service");
+const connection_1 = require("./database/connection");
+const redis_service_1 = require("./common/services/redis.service");
 const app = (0, express_1.default)();
+(0, connection_1.DatabaseConnection)();
+redis_service_1.redisService.connect();
+const limit = (0, express_rate_limit_1.rateLimit)({
+    windowMs: 10 * 60 * 1000,
+    limit: 200,
+    message: "Too many requests"
+});
+app.use(limit);
 app.use((0, express_1.json)());
+app.use((0, cors_1.default)({
+    origin: "*"
+}));
 app.use("/auth", auth_controller_1.default);
 app.get("/", (req, res, next) => {
     throw new exception_error_1.BadRequestException("test", {});
 });
 app.use(globalHandlingError_1.globalHandlingError);
-app.listen(3000, () => {
-    console.log(`server is running on port 3000`);
+app.listen(env_service_1.env.port, () => {
+    console.log(`server is running on port ${env_service_1.env.port}`);
 });

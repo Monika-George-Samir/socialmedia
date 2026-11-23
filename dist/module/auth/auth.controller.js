@@ -4,10 +4,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const router = (0, express_1.Router)();
 const auth_service_1 = __importDefault(require("./auth.service"));
-router.post("/", async (req, res) => {
-    let data = await auth_service_1.default.login(req.body);
-    res.json({ message: "Done", data });
+const success_response_1 = require("../../common/exception/success.response");
+const validation_service_1 = require("../../common/services/validation.service");
+const auth_validation_1 = require("./auth.validation");
+const router = (0, express_1.Router)();
+router.post("/", (0, validation_service_1.validation)(auth_validation_1.signupSchema), async (req, res) => {
+    let data = await auth_service_1.default.signup(req.body);
+    (0, success_response_1.successResponse)({ res, message: "Done", data });
 });
 exports.default = router;

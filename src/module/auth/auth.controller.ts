@@ -1,15 +1,16 @@
 import { Router } from "express";
-
 import type { Request, Response, NextFunction } from "express";
-import { AuthService } from "./auth.service";
+import authService from "./auth.service"
+import { successResponse } from "../../common/exception/success.response";
+import { validation } from "../../common/services/validation.service";
+import { signupSchema } from "./auth.validation";
 
 const router = Router()
 
-import authService from "./auth.service"
 
-router.post("/", async(req:Request, res:Response): Promise<void>=>{
-      let data = await authService.login(req.body)
-    res.json({message: "Done", data})
+router.post("/", validation(signupSchema), async(req:Request, res:Response): Promise<void>=>{
+    let data = await authService.signup(req.body)
+    successResponse({res, message:"Done", data})
 })
 
 export default router
