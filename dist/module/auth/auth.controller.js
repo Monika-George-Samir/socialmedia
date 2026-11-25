@@ -8,9 +8,22 @@ const auth_service_1 = __importDefault(require("./auth.service"));
 const success_response_1 = require("../../common/exception/success.response");
 const validation_service_1 = require("../../common/services/validation.service");
 const auth_validation_1 = require("./auth.validation");
+const auth_midlleware_1 = require("../../common/middleware/auth.midlleware");
 const router = (0, express_1.Router)();
-router.post("/", (0, validation_service_1.validation)(auth_validation_1.signupSchema), async (req, res) => {
+router.post("/login", (0, validation_service_1.validation)(auth_validation_1.loginSchema), async (req, res) => {
+    let data = await auth_service_1.default.login(req.body);
+    (0, success_response_1.successResponse)({ res, message: "login successfully", data });
+});
+router.post("/signup", (0, validation_service_1.validation)(auth_validation_1.signupSchema), async (req, res) => {
     let data = await auth_service_1.default.signup(req.body);
-    (0, success_response_1.successResponse)({ res, message: "Done", data });
+    (0, success_response_1.successResponse)({ res, message: "Signup successfully", data });
+});
+router.get("/get-user-by-id", auth_midlleware_1.auth, async (req, res) => {
+    let data = await auth_service_1.default.getUserById(req.userId);
+    (0, success_response_1.successResponse)({ res, message: "User found", data });
+});
+router.get("/verify-account", async (req, res) => {
+    let data = await auth_service_1.default.verifyAccount(req.query);
+    (0, success_response_1.successResponse)({ res, message: "Account verified", data });
 });
 exports.default = router;

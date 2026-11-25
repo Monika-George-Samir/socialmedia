@@ -32,5 +32,12 @@ class DatabaseReposatory {
     findByID(id) {
         return this.model.findById(id);
     }
+    updateOne({ filter, updateData, options = { new: true } }) {
+        let query = this.model.findOneAndUpdate(filter, updateData, { new: true, ...options });
+        return query;
+    }
+    deleteOne({ filter }) {
+        return this.model.deleteOne(filter);
+    }
 }
 exports.DatabaseReposatory = DatabaseReposatory;

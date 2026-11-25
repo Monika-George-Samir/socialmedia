@@ -1,10 +1,14 @@
+import { RoleEnums } from "../enums/user.enums";
 
 
 export interface IUser {
+    _id?: string | undefined,
     name: string,
     email: string,
     password: string,
     isVerified?: boolean,
-    phone?: string,
-    age?: number
+    confirmPassword?: string,
+    phone?: string | undefined,
+    age?: number | undefined,
+    role?: RoleEnums | undefined
 }

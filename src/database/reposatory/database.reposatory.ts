@@ -1,4 +1,4 @@
-import { HydratedDocument, Model, PopulateOptions, QueryFilter } from "mongoose";
+import { HydratedDocument, Model, PopulateOptions, QueryFilter, QueryOptions, UpdateQuery } from "mongoose";
 
 
 export class DatabaseReposatory<TRaw> {
@@ -19,8 +19,8 @@ export class DatabaseReposatory<TRaw> {
         populate
     }:{
         filter: QueryFilter<TRaw>,
-        select?: string,
-        populate?: PopulateOptions | PopulateOptions[]
+        select?: string | null,
+        populate?: PopulateOptions | PopulateOptions[] | undefined
     }): Promise<HydratedDocument<TRaw> | null>{
         let query = this.model.findOne(filter)
         if (select) {
@@ -58,18 +58,22 @@ export class DatabaseReposatory<TRaw> {
     }
 
 
-    // updateByID({
-    //     filter,
-    //     data,
-    //     options
-    // }: {
-    //     filter: QueryFilter<TRaw>,
-    //     data:  
-    // }){
+    updateOne({
+        filter,
+        updateData,
+        options = {new: true}
+    }: {
+        filter: QueryFilter<TRaw>,
+        updateData: UpdateQuery<TRaw>,
+        options?: QueryOptions<TRaw>
+    }){
+        let query = this.model.findOneAndUpdate(filter, updateData, {new: true, ...options})
+        return query
+    }
 
-    // }
 
-
-
+    deleteOne({filter}: {filter: QueryFilter<TRaw>}){
+        return this.model.deleteOne(filter)
+    }
     
 }
