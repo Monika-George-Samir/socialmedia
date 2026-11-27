@@ -19,10 +19,13 @@ class DatabaseReposatory {
         }
         return query;
     }
-    findAll({ filter, select, populate }) {
+    findAll({ filter, select, limit, populate }) {
         let query = this.model.find(filter);
         if (select) {
             query = query.select(select);
+        }
+        if (limit) {
+            query = query.limit(limit);
         }
         if (populate) {
             query = query.populate(populate);

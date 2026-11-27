@@ -36,15 +36,20 @@ export class DatabaseReposatory<TRaw> {
     findAll({
         filter,
         select,
+        limit,
         populate
     }: {
         filter: QueryFilter<TRaw>,
         select?: string,
+        limit?: number,
         populate?: PopulateOptions | PopulateOptions[]
     }){
         let query = this.model.find(filter)
         if (select) {
             query = query.select(select)
+        }
+        if (limit) {
+            query = query.limit(limit)
         }
         if (populate) {
             query = query.populate(populate)

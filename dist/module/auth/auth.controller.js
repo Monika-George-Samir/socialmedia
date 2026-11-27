@@ -48,6 +48,6 @@ router.get("/search", auth_midlleware_1.auth, async (req, res) => {
 });
 router.get("/get-suggestions", auth_midlleware_1.auth, async (req, res) => {
     let data = await auth_service_1.default.getUserSuggestions(req.userId);
-    (0, success_response_1.successResponse)({ res, data });
+    (0, success_response_1.successResponse)({ res, message: data.message, data });
 });
 exports.default = router;

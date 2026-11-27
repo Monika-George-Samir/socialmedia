@@ -167,8 +167,8 @@ class AuthService {
                 _id: { $nin: excludedIds },
                 followRequests: { $ne: currentUserId },
                 isVerified: true
-            }, select: "-__v -password -role -followRequests" });
-        return suggestions;
+            }, select: "-__v -password -role -followRequests", limit: 3 });
+        return { data: suggestions, message: `Total suggestion: ${suggestions.length}` };
     }
 }
 exports.AuthService = AuthService;
