@@ -38,6 +38,10 @@ router.patch("/reset-password", auth_midlleware_1.auth, async (req, res) => {
     let data = await auth_service_1.default.resetPassword(req.body, req.userId);
     (0, success_response_1.successResponse)({ res, message: "password changed successfully", data });
 });
+router.get("/get-user-profile/:id", auth_midlleware_1.auth, async (req, res) => {
+    let data = await auth_service_1.default.getUserProfile(req.userId, req.params.id);
+    (0, success_response_1.successResponse)({ res, message: "User details", data });
+});
 router.patch("/follow-unfollow", auth_midlleware_1.auth, async (req, res) => {
     let data = await auth_service_1.default.followSystemToggle(req.userId, req.body);
     (0, success_response_1.successResponse)({ res, message: data.message });

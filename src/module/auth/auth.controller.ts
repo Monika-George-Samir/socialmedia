@@ -47,6 +47,12 @@ router.patch("/reset-password", auth, async(req:IReq, res:Response)=>{
     successResponse({res, message:"password changed successfully", data})
 })
 
+
+router.get("/get-user-profile/:id", auth, async(req:IReq, res:Response)=>{
+    let data = await authService.getUserProfile(req.userId as string, req.params.id as string)
+    successResponse({res, message: "User details", data})
+})
+
 router.patch("/follow-unfollow", auth, async(req:IReq, res:Response)=>{
     let data = await authService.followSystemToggle(req.userId as string, req.body)
     successResponse({res, message: data.message})

@@ -112,6 +112,24 @@ class AuthService {
         let updatedUser = await this.authReposatory.updateOne({ filter: { _id: id }, updateData: { password: hashedPassword } });
         return updatedUser;
     }
+    async getUserProfile(currentUserId, targetUserId) {
+        let userData = await this.authReposatory.findOne({ filter: { _id: targetUserId }, select: "name email phone age isPrivate followers following" });
+        if (!userData) {
+            throw new exception_error_1.NotFoundException("User not found");
+        }
+        let isOwner = currentUserId === targetUserId;
+        let isFollower = userData?.followers?.some((id) => id.toString() === currentUserId);
+        if (userData.isPrivate && !isOwner && !isFollower) {
+            return {
+                _id: userData._id,
+                name: userData.name,
+                isPrivate: true,
+                followersCount: userData.followers?.length,
+                followingCount: userData.following?.length,
+            };
+        }
+        return userData;
+    }
     async followSystemToggle(currentUserId, body) {
         let { targetUserId } = body;
         if (currentUserId == targetUserId) {
@@ -167,7 +185,7 @@ class AuthService {
                 _id: { $nin: excludedIds },
                 followRequests: { $ne: currentUserId },
                 isVerified: true
-            }, select: "-__v -password -role -followRequests", limit: 3 });
+            }, select: "-__v -password -role -followRequests", limit: 4 });
         return { data: suggestions, message: `Total suggestion: ${suggestions.length}` };
     }
 }
