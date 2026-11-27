@@ -57,4 +57,9 @@ router.get("/search", auth, async(req:Request, res:Response)=>{
     successResponse({res, data})
 })
 
+router.get("/get-suggestions", auth, async(req:IReq, res:Response)=>{
+    let data = await authService.getUserSuggestions(req.userId as string)
+    successResponse({res, data})
+})
+
 export default router

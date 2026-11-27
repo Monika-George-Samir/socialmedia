@@ -154,6 +154,22 @@ class AuthService {
         }
         return users;
     }
+    async getUserSuggestions(currentUserId) {
+        let currentUser = await this.authReposatory.findOne({ filter: { _id: currentUserId } });
+        if (!currentUser) {
+            throw new exception_error_1.NotFoundException("User not found");
+        }
+        let excludedIds = [
+            currentUserId,
+            ...currentUser.following || []
+        ];
+        let suggestions = await this.authReposatory.findAll({ filter: {
+                _id: { $nin: excludedIds },
+                followRequests: { $ne: currentUserId },
+                isVerified: true
+            }, select: "-__v -password -role -followRequests" });
+        return suggestions;
+    }
 }
 exports.AuthService = AuthService;
 exports.default = new AuthService();
