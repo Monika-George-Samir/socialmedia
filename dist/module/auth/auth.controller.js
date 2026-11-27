@@ -26,4 +26,20 @@ router.get("/verify-account", async (req, res) => {
     let data = await auth_service_1.default.verifyAccount(req.query);
     (0, success_response_1.successResponse)({ res, message: "Account verified", data });
 });
+router.post("/generate-access-token", async (req, res) => {
+    let data = await auth_service_1.default.generateNewAccessToken(req.body);
+    (0, success_response_1.successResponse)({ res, message: "New access token generated", data });
+});
+router.post("/forget-password", auth_midlleware_1.auth, async (req, res) => {
+    let data = await auth_service_1.default.forgetPassword(req.userId);
+    (0, success_response_1.successResponse)({ res, message: "OTP sent", data });
+});
+router.patch("/reset-password", auth_midlleware_1.auth, async (req, res) => {
+    let data = await auth_service_1.default.resetPassword(req.body, req.userId);
+    (0, success_response_1.successResponse)({ res, message: "password changed successfully", data });
+});
+router.patch("/follow-unfollow", auth_midlleware_1.auth, async (req, res) => {
+    let data = await auth_service_1.default.followSystemToggle(req.userId, req.body);
+    (0, success_response_1.successResponse)({ res, message: data.message });
+});
 exports.default = router;

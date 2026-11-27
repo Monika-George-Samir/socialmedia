@@ -28,7 +28,7 @@ const generateNewAccessToken = (refreshToken) => {
             break;
     }
     let decodedRefreshToken = jsonwebtoken_1.default.verify(refreshToken, refreshSignature);
-    let accessToken = jsonwebtoken_1.default.sign({ id: decodedRefreshToken.id }, signature, { expiresIn: "30min", audience: aud });
+    let accessToken = jsonwebtoken_1.default.sign({ id: decodedRefreshToken.id }, signature, { expiresIn: Number(env_service_js_1.env.accessTokenExpiresIn), audience: aud });
     return { accessToken };
 };
 exports.generateNewAccessToken = generateNewAccessToken;
@@ -48,7 +48,7 @@ const generateToken = (user) => {
             aud = "user";
             break;
     }
-    let accessToken = jsonwebtoken_1.default.sign({ id: user._id }, signature, { expiresIn: "30min", audience: aud });
+    let accessToken = jsonwebtoken_1.default.sign({ id: user._id }, signature, { expiresIn: Number(env_service_js_1.env.accessTokenExpiresIn), audience: aud });
     let refreshToken = jsonwebtoken_1.default.sign({ id: user._id }, refreshSignature, { expiresIn: "1y", audience: aud });
     return { accessToken, refreshToken };
 };

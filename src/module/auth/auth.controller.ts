@@ -31,4 +31,25 @@ router.get("/verify-account", async(req:Request, res:Response)=>{
     let data = await authService.verifyAccount(req.query)
     successResponse({res, message: "Account verified", data})
 })
+
+
+router.post("/generate-access-token", async(req:Request, res:Response)=>{
+    let data = await authService.generateNewAccessToken(req.body)
+    successResponse({res, message:"New access token generated", data})
+})
+
+router.post("/forget-password", auth, async(req:IReq, res:Response)=>{
+    let data = await authService.forgetPassword(req.userId as string)
+    successResponse({res, message:"OTP sent", data})
+})
+router.patch("/reset-password", auth, async(req:IReq, res:Response)=>{
+    let data = await authService.resetPassword(req.body, req.userId as string)
+    successResponse({res, message:"password changed successfully", data})
+})
+
+router.patch("/follow-unfollow", auth, async(req:IReq, res:Response)=>{
+    let data = await authService.followSystemToggle(req.userId as string, req.body)
+    successResponse({res, message: data.message})
+})
+
 export default router

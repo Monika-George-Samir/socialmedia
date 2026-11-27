@@ -14,6 +14,7 @@ const adminRefreshSignature = process.env.REFRESH_SIGNATURE_ADMIN as string
 const emailUser = process.env.EMAIL
 const appPassword = process.env.APP_PASSWORD
 const redisURI = process.env.REDIS_URI as string
+const accessTokenExpiresIn = process.env.ACCESS_TOKEN_EXPIRES_IN as string
 
 export const env = {
     port,
@@ -26,5 +27,6 @@ export const env = {
     adminRefreshSignature,
     emailUser,
     appPassword,
-    redisURI
+    redisURI,
+    accessTokenExpiresIn
 }

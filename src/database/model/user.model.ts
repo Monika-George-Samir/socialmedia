@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose";
+import { model, Schema, Types } from "mongoose";
 import { IUser } from "../../common/interface/user.interface";
 import { RoleEnums } from "../../common/enums/user.enums";
 
@@ -32,6 +32,22 @@ const userSchema = new Schema<IUser>({
         type: Number,
         enum: RoleEnums,
         default: RoleEnums.User
+    },
+    followers : [{
+        type: Types.ObjectId,
+        ref: "user"
+    }],
+    following : [{
+        type: Types.ObjectId,
+        ref: "user"
+    }],
+    followRequests: [{
+        type: Types.ObjectId,
+        ref: "user"
+    }],
+    isPrivate: {
+        type: Boolean,
+        default: false
     }
 })
 

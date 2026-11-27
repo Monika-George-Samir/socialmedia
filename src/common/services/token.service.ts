@@ -25,7 +25,7 @@ export const generateNewAccessToken = (refreshToken:string)=>{
             break;
     }
     let decodedRefreshToken = jwt.verify(refreshToken, refreshSignature) as JwtPayload
-    let accessToken = jwt.sign({id:decodedRefreshToken.id}, signature, {expiresIn: "30min", audience: aud})
+    let accessToken = jwt.sign({id:decodedRefreshToken.id}, signature, {expiresIn: Number(env.accessTokenExpiresIn), audience: aud})
     
     return {accessToken}
 }
@@ -47,7 +47,7 @@ export const generateToken = (user:IUser)=>{
             aud = "user"
             break;
     }
-    let accessToken = jwt.sign({id: user._id}, signature, {expiresIn: "30min", audience: aud})
+    let accessToken = jwt.sign({id: user._id}, signature, {expiresIn: Number(env.accessTokenExpiresIn), audience: aud})
     let refreshToken = jwt.sign({id: user._id}, refreshSignature, {expiresIn: "1y", audience: aud})
     
     return {accessToken, refreshToken}

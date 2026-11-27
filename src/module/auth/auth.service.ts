@@ -1,13 +1,14 @@
 import jwt, { JwtPayload } from "jsonwebtoken"
-import { BadRequestException, ConflictException, NotFoundException } from "../../common/exception/exception.error"
+import { BadRequestException, ConflictException, NotFoundException, UnAuthorizedException } from "../../common/exception/exception.error"
 import { IUser } from "../../common/interface/user.interface"
 import { sendEmail } from "../../common/services/email.service"
 import { compareHash, generateHash } from "../../common/services/encryption.service"
 import { redisService } from "../../common/services/redis.service"
-import { generateToken } from "../../common/services/token.service"
+import { generateNewAccessToken, generateToken } from "../../common/services/token.service"
 import { userModel } from "../../database/model/user.model"
 import { DatabaseReposatory } from "../../database/reposatory/database.reposatory"
 import { LoginDTO } from "./dto/auth.dto"
+import { env } from "../../config/env.service"
 
 
 export class AuthService {
@@ -19,7 +20,7 @@ export class AuthService {
     async signup(data: IUser){
         let {name, email, password, confirmPassword, age, phone} = data
         let existedUser = await this.authReposatory.findOne({filter: {email}})
-        if (!existedUser) {
+        if (existedUser) {
             throw new ConflictException("User already exists")
         }
 
@@ -77,6 +78,88 @@ export class AuthService {
         let updatedUser = await this.authReposatory.updateOne({filter: {_id:decoded.id}, updateData: {isVerified: true}})
         return updatedUser
     }
+
+    async generateNewAccessToken(body:{refreshToken: string}){
+        let {refreshToken} = body
+        if (!refreshToken) {
+            throw new BadRequestException("refresh token is required")
+        }
+        let decodedRefreshToken = jwt.decode(refreshToken) as JwtPayload
+
+        let accessExpiresAtMS = (decodedRefreshToken.iat as number + Number(env.accessTokenExpiresIn)) * 1000        
+        if (Date.now() < accessExpiresAtMS) {
+            throw new BadRequestException("Access token still valid")
+        }
+        let {accessToken} = generateNewAccessToken(refreshToken)
+        if (accessToken) {
+            return {accessToken}
+        }
+        throw new BadRequestException("invalid token")
+    }
+
+    async forgetPassword(id:string){
+        let userData = await this.authReposatory.findOne({filter: {_id:id}})
+        if (!userData) {
+            throw new UnAuthorizedException("You are not authorized")
+        }
+        let otp = Math.round(Math.random() * 1000000)
+        redisService.set(`forgetPasswordOTP::${userData._id}`,  String(otp), 60)
+        sendEmail({to: userData.email, subject: "forget password otp", html: `<h1> Your OTP is ${otp} </h1>`})
+    }
+
+
+    async resetPassword(body:{newPassword:string, otp:string}, id:string){
+        let {newPassword, otp} = body
+        let existedUser = await this.authReposatory.findOne({filter: {_id:id}})
+        if (!existedUser) {
+            throw new UnAuthorizedException("Not authorized")
+        }
+        const resetPasswordOTP = await redisService.get(`forgetPasswordOTP::${existedUser._id}`)
+        if (resetPasswordOTP != otp) {
+            throw new BadRequestException("otp does not match")
+        }
+        let hashedPassword = await generateHash({plainText: newPassword})
+        if (!hashedPassword) {
+            throw new BadRequestException("something went wrong")
+        }
+        
+        let updatedUser = await this.authReposatory.updateOne({filter: {_id:id}, updateData: {password: hashedPassword}})
+        return updatedUser
+    }   
+
+    async followSystemToggle(currentUserId: string, body:{targetUserId:string}){
+        let {targetUserId} = body
+        if (currentUserId == targetUserId) {
+            throw new BadRequestException("You cannot follow yourself")
+        }
+
+        let targetUser = await this.authReposatory.findOne({filter: {_id:targetUserId}})
+        if (!targetUser) {
+            throw new NotFoundException("User not found")
+        }
+
+        let isAlreadyFollowing = targetUser.followers?.some((id)=> id.toString() === currentUserId)
+
+        let hasPendingRequest = targetUser.followRequests?.some((id)=> id.toString() === currentUserId)
+        
+        if (isAlreadyFollowing || hasPendingRequest) {
+            await this.authReposatory.updateOne({filter: {_id: currentUserId}, updateData:{$pull: {following: targetUserId}}})
+            await this.authReposatory.updateOne({filter: {_id: targetUserId}, updateData:{$pull: {followers: currentUserId, followRequests: currentUserId}}})
+            return {message: hasPendingRequest? "Follow request cancelled" : "Unfollowed successfully"}
+        }
+
+        if (targetUser.isPrivate) {
+            await this.authReposatory.updateOne({filter: {_id:targetUserId}, updateData:{$addToSet: {followRequests: currentUserId}}})
+            return {message: "Follow request sent"}
+        }
+
+        await this.authReposatory.updateOne({filter: {_id: currentUserId},updateData:{$addToSet: {following: targetUserId}}})
+        await this.authReposatory.updateOne({filter: {_id: targetUserId},updateData:{$addToSet: {followers: currentUserId}}})
+        return {message: "Followed successfully"}
+
+    }
+
+
 }
 
 export default new AuthService()

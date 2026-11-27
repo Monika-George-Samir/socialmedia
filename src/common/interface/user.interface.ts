@@ -10,5 +10,9 @@ export interface IUser {
     confirmPassword?: string,
     phone?: string | undefined,
     age?: number | undefined,
-    role?: RoleEnums | undefined
+    role?: RoleEnums | undefined,
+    followers?: string[],
+    following?: string[],
+    followRequests?: string[]
+    isPrivate?: boolean
 }

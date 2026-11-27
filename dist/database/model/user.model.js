@@ -31,6 +31,22 @@ const userSchema = new mongoose_1.Schema({
         type: Number,
         enum: user_enums_1.RoleEnums,
         default: user_enums_1.RoleEnums.User
+    },
+    followers: [{
+            type: mongoose_1.Types.ObjectId,
+            ref: "user"
+        }],
+    following: [{
+            type: mongoose_1.Types.ObjectId,
+            ref: "user"
+        }],
+    followRequests: [{
+            type: mongoose_1.Types.ObjectId,
+            ref: "user"
+        }],
+    isPrivate: {
+        type: Boolean,
+        default: false
     }
 });
 exports.userModel = (0, mongoose_1.model)("user", userSchema);
