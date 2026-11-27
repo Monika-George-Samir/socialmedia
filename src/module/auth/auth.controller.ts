@@ -52,4 +52,9 @@ router.patch("/follow-unfollow", auth, async(req:IReq, res:Response)=>{
     successResponse({res, message: data.message})
 })
 
+router.get("/search", auth, async(req:Request, res:Response)=>{
+    let data = await authService.searchUsers(req.body)
+    successResponse({res, data})
+})
+
 export default router

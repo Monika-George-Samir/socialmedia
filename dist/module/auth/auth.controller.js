@@ -42,4 +42,8 @@ router.patch("/follow-unfollow", auth_midlleware_1.auth, async (req, res) => {
     let data = await auth_service_1.default.followSystemToggle(req.userId, req.body);
     (0, success_response_1.successResponse)({ res, message: data.message });
 });
+router.get("/search", auth_midlleware_1.auth, async (req, res) => {
+    let data = await auth_service_1.default.searchUsers(req.body);
+    (0, success_response_1.successResponse)({ res, data });
+});
 exports.default = router;

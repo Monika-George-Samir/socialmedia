@@ -159,6 +159,26 @@ export class AuthService {
 
     }
 
+    async searchUsers(body:{keyword:string}){
+        let {keyword} = body
+        if (!keyword || !keyword.trim()) {
+            return []
+        }
+        let users = await this.authReposatory.findAll({filter: {
+            isVerified: true,
+            $or: [
+                {name: {$regex : keyword.trim(), $options: "i"}},
+                {email: {$regex: keyword.trim(), $options: "i"}}
+            ]
+        }, select: "name email isVerified phone age followers following"
+    })
+    if (users.length == 0) {
+        throw new NotFoundException("No users found")
+    }
+    return users
+    }
+
+
 
 }
 
