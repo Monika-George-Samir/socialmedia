@@ -144,9 +144,28 @@ export class AuthService {
                 isPrivate: true,
                 followersCount: userData.followers?.length,
                 followingCount: userData.following?.length,
+                message: "This account is private"
             }
         }
-        return userData
+        return {data: userData, message: "User details"}
+    }
+
+    async updateUser(id:string, body:{name?:string, age?:number, phone?:string}){
+        if (!body) {
+            throw new BadRequestException("No data provided to update")
+        }
+        let existedUser = await this.authReposatory.findOne({filter: {_id:id}})
+        if (!existedUser) {
+            throw new NotFoundException("User not found")
+        }
+        let updatedUser = await this.authReposatory.updateOne({
+            filter: {_id: id},
+            updateData: body
+        })
+        if (!updatedUser) {
+            throw new BadRequestException("Something went wrong while updating the information")
+        }
+        return updatedUser
     }
 
 

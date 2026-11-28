@@ -42,6 +42,10 @@ router.get("/get-user-profile/:id", auth_midlleware_1.auth, async (req, res) => 
     let data = await auth_service_1.default.getUserProfile(req.userId, req.params.id);
     (0, success_response_1.successResponse)({ res, message: "User details", data });
 });
+router.patch("/update-user", auth_midlleware_1.auth, (0, validation_service_1.validation)(auth_validation_1.updateProfileSchema), async (req, res) => {
+    let data = await auth_service_1.default.updateUser(req.userId, req.body);
+    (0, success_response_1.successResponse)({ res, message: "User updated", data });
+});
 router.patch("/follow-unfollow", auth_midlleware_1.auth, async (req, res) => {
     let data = await auth_service_1.default.followSystemToggle(req.userId, req.body);
     (0, success_response_1.successResponse)({ res, message: data.message });

@@ -3,7 +3,7 @@ import type { Request, Response, NextFunction } from "express";
 import authService from "./auth.service"
 import { successResponse } from "../../common/exception/success.response";
 import { validation } from "../../common/services/validation.service";
-import { loginSchema, signupSchema } from "./auth.validation";
+import { loginSchema, signupSchema, updateProfileSchema } from "./auth.validation";
 import { auth } from "../../common/middleware/auth.midlleware";
 import { IReq } from "../../common/interface/request.interface";
 
@@ -51,6 +51,12 @@ router.patch("/reset-password", auth, async(req:IReq, res:Response)=>{
 router.get("/get-user-profile/:id", auth, async(req:IReq, res:Response)=>{
     let data = await authService.getUserProfile(req.userId as string, req.params.id as string)
     successResponse({res, message: "User details", data})
+})
+
+
+router.patch("/update-user", auth, validation(updateProfileSchema), async(req:IReq, res:Response)=>{
+    let data = await authService.updateUser(req.userId as string, req.body)
+    successResponse({res, message: "User updated", data})
 })
 
 router.patch("/follow-unfollow", auth, async(req:IReq, res:Response)=>{
