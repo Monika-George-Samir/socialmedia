@@ -144,7 +144,6 @@ export class AuthService {
                 isPrivate: true,
                 followersCount: userData.followers?.length,
                 followingCount: userData.following?.length,
-                message: "This account is private"
             }
         }
         return {data: userData, message: "User details"}
@@ -237,6 +236,22 @@ export class AuthService {
             isVerified: true
         }, select: "-__v -password -role -followRequests", limit: 4})
         return {data: suggestions, message: `Total suggestion: ${suggestions.length}`}
+    }
+
+
+    async togglePrivacy(userId:string){
+        let userData = await this.authReposatory.findOne({filter: {_id:userId}})
+        if (!userData) {
+            throw new NotFoundException("User not found")
+        }
+
+        let privacyChanged = !userData.isPrivate
+
+        let updatedUser = await this.authReposatory.updateOne({filter: {_id:userId}, updateData: {isPrivate: privacyChanged}})
+        return {
+            isPrivate: privacyChanged,
+            message: `Profile is now ${privacyChanged ? "private" : "public"}`
+        }
     }
 
 }

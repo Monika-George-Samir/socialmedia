@@ -74,4 +74,9 @@ router.get("/get-suggestions", auth, async(req:IReq, res:Response)=>{
     successResponse({res, message: data.message, data})
 })
 
+router.patch("/privacy", auth, async(req:IReq, res:Response)=>{
+    let {message, ...data} = await authService.togglePrivacy(req.userId as string)
+    successResponse({res, message, data})
+})
+
 export default router
